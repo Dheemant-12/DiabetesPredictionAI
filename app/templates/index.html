@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Diabetes Prediction AI</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Diabetes Prediction AI</h1>
+
+        <p class="subtitle">
+            Enter patient information to estimate
+            diabetes risk.
+        </p>
+
+
+        <form id="predictionForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="Pregnancies">
+                        Pregnancies
+                    </label>
+
+                    <input
+                        type="number"
+                        id="Pregnancies"
+                        min="0"
+                        max="20"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="Glucose">
+                        Glucose
+                    </label>
+
+                    <input
+                        type="number"
+                        id="Glucose"
+                        min="1"
+                        max="300"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="BloodPressure">
+                        Blood Pressure
+                    </label>
+
+                    <input
+                        type="number"
+                        id="BloodPressure"
+                        min="1"
+                        max="200"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="SkinThickness">
+                        Skin Thickness
+                    </label>
+
+                    <input
+                        type="number"
+                        id="SkinThickness"
+                        min="0"
+                        max="100"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="Insulin">
+                        Insulin
+                    </label>
+
+                    <input
+                        type="number"
+                        id="Insulin"
+                        min="0"
+                        max="1000"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="BMI">
+                        BMI
+                    </label>
+
+                    <input
+                        type="number"
+                        id="BMI"
+                        min="1"
+                        max="80"
+                        step="0.1"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="DiabetesPedigreeFunction">
+                        Diabetes Pedigree Function
+                    </label>
+
+                    <input
+                        type="number"
+                        id="DiabetesPedigreeFunction"
+                        min="0"
+                        max="3"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="Age">
+                        Age
+                    </label>
+
+                    <input
+                        type="number"
+                        id="Age"
+                        min="1"
+                        max="120"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button type="submit">
+                Predict Diabetes Risk
+            </button>
+
+        </form>
+
+
+        <div
+            id="loading"
+            class="loading hidden"
+        >
+            Analyzing patient data...
+        </div>
+
+
+        <div
+            id="result"
+            class="result hidden"
+        >
+
+            <h2>Prediction Result</h2>
+
+            <p>
+                <strong>Prediction:</strong>
+                <span id="predictionLabel"></span>
+            </p>
+
+            <p>
+                <strong>Probability:</strong>
+                <span id="probability"></span>
+            </p>
+
+            <p>
+                <strong>Confidence:</strong>
+                <span id="confidence"></span>
+            </p>
+
+            <p id="message"></p>
+
+        </div>
+
+
+        <div
+            id="error"
+            class="error hidden"
+        ></div>
+
+    </div>
+
+
+    <script>
+
+        const form =
+            document.getElementById(
+                "predictionForm"
+            );
+
+        const result =
+            document.getElementById(
+                "result"
+            );
+
+        const error =
+            document.getElementById(
+                "error"
+            );
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+
+        form.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                result.classList.add("hidden");
+
+                error.classList.add("hidden");
+
+                loading.classList.remove("hidden");
+
+
+                const data = {
+
+                    Pregnancies:
+                        Number(
+                            document.getElementById(
+                                "Pregnancies"
+                            ).value
+                        ),
+
+                    Glucose:
+                        Number(
+                            document.getElementById(
+                                "Glucose"
+                            ).value
+                        ),
+
+                    BloodPressure:
+                        Number(
+                            document.getElementById(
+                                "BloodPressure"
+                            ).value
+                        ),
+
+                    SkinThickness:
+                        Number(
+                            document.getElementById(
+                                "SkinThickness"
+                            ).value
+                        ),
+
+                    Insulin:
+                        Number(
+                            document.getElementById(
+                                "Insulin"
+                            ).value
+                        ),
+
+                    BMI:
+                        Number(
+                            document.getElementById(
+                                "BMI"
+                            ).value
+                        ),
+
+                    DiabetesPedigreeFunction:
+                        Number(
+                            document.getElementById(
+                                "DiabetesPedigreeFunction"
+                            ).value
+                        ),
+
+                    Age:
+                        Number(
+                            document.getElementById(
+                                "Age"
+                            ).value
+                        )
+
+                };
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/predict",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(data)
+                            }
+                        );
+
+
+                    const resultData =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            resultData.error ||
+                            "Prediction failed."
+                        );
+
+                    }
+
+
+                    document.getElementById(
+                        "predictionLabel"
+                    ).textContent =
+                        resultData.prediction_label;
+
+
+                    document.getElementById(
+                        "probability"
+                    ).textContent =
+                        (
+                            resultData.probability *
+                            100
+                        ).toFixed(2) + "%";
+
+
+                    document.getElementById(
+                        "confidence"
+                    ).textContent =
+                        resultData.confidence;
+
+
+                    document.getElementById(
+                        "message"
+                    ).textContent =
+                        resultData.message;
+
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+
+                }
+
+                catch (err) {
+
+                    error.textContent =
+                        err.message;
+
+                    error.classList.remove(
+                        "hidden"
+                    );
+
+                }
+
+                finally {
+
+                    loading.classList.add(
+                        "hidden"
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

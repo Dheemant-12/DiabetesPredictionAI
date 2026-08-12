@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 from src.prediction_pipeline import predict_diabetes
 
@@ -32,9 +32,7 @@ FIELD_RANGES = {
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({
-        "message": "Diabetes Prediction API is running!"
-    })
+    return render_template("index.html")
 
 
 @app.route("/predict", methods=["POST"])
@@ -47,7 +45,6 @@ def predict():
             "error": "No input data provided."
         }), 400
 
-    # Check required fields
     missing_fields = [
         field
         for field in REQUIRED_FIELDS
@@ -60,7 +57,6 @@ def predict():
             "missing_fields": missing_fields
         }), 400
 
-    # Validate values
     for field in REQUIRED_FIELDS:
 
         value = data[field]
@@ -84,11 +80,13 @@ def predict():
             }), 400
 
     try:
+
         result = predict_diabetes(data)
 
         return jsonify(result)
 
     except Exception as error:
+
         return jsonify({
             "error": "Prediction failed.",
             "details": str(error)
@@ -96,6 +94,7 @@ def predict():
 
 
 if __name__ == "__main__":
+
     app.run(
         debug=True
     )
