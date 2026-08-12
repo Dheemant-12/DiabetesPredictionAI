@@ -33,9 +33,18 @@ def age_group(age):
         return "Senior"
 
 
+def get_confidence(probability):
+    if probability >= 0.75 or probability <= 0.25:
+        return "High"
+    elif probability >= 0.60 or probability <= 0.40:
+        return "Medium"
+    else:
+        return "Low"
+
+
 def predict_diabetes(patient_data):
 
-    # Convert dictionary to DataFrame
+    # Convert input into DataFrame
     df = pd.DataFrame([patient_data])
 
     # Feature engineering
@@ -62,7 +71,7 @@ def predict_diabetes(patient_data):
         drop_first=True
     )
 
-    # Make sure all training columns exist
+    # Match training features exactly
     df = df.reindex(
         columns=feature_names,
         fill_value=0
@@ -75,9 +84,35 @@ def predict_diabetes(patient_data):
         df
     )[0][1]
 
+    probability = float(probability)
+
+    # Human-readable result
+    if prediction == 1:
+        prediction_label = "Diabetes Risk"
+        message = (
+            "The model predicts a higher "
+            "risk of diabetes."
+        )
+    else:
+        prediction_label = "Lower Diabetes Risk"
+        message = (
+            "The model predicts a lower "
+            "risk of diabetes."
+        )
+
+    confidence = get_confidence(
+        probability
+    )
+
     return {
         "prediction": int(prediction),
-        "probability": float(probability)
+        "prediction_label": prediction_label,
+        "probability": round(
+            probability,
+            4
+        ),
+        "confidence": confidence,
+        "message": message
     }
 
 
@@ -99,4 +134,6 @@ if __name__ == "__main__":
     )
 
     print("\nPrediction Result:")
-    print(result)
+
+    for key, value in result.items():
+        print(f"{key}: {value}")
