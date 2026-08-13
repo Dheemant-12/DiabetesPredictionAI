@@ -19,23 +19,32 @@
 
 </head>
 
+
 <body>
 
     <div class="container">
 
-        <h1>Diabetes Prediction AI</h1>
+        <div class="header">
 
-        <p class="subtitle">
-            Enter patient information to estimate
-            diabetes risk.
-        </p>
+            <h1>Diabetes Prediction AI</h1>
 
+            <p>
+                Estimate diabetes risk using a
+                machine learning model.
+            </p>
+
+        </div>
+
+
+        <!-- Prediction Form -->
 
         <form id="predictionForm">
 
             <div class="form-grid">
 
+
                 <div class="form-group">
+
                     <label for="Pregnancies">
                         Pregnancies
                     </label>
@@ -47,10 +56,12 @@
                         max="20"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="Glucose">
                         Glucose
                     </label>
@@ -62,10 +73,12 @@
                         max="300"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="BloodPressure">
                         Blood Pressure
                     </label>
@@ -77,10 +90,12 @@
                         max="200"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="SkinThickness">
                         Skin Thickness
                     </label>
@@ -92,10 +107,12 @@
                         max="100"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="Insulin">
                         Insulin
                     </label>
@@ -107,10 +124,12 @@
                         max="1000"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="BMI">
                         BMI
                     </label>
@@ -123,6 +142,7 @@
                         step="0.1"
                         required
                     >
+
                 </div>
 
 
@@ -163,20 +183,44 @@
             </div>
 
 
-            <button type="submit">
-                Predict Diabetes Risk
-            </button>
+            <div class="button-group">
+
+                <button
+                    type="submit"
+                    id="predictButton"
+                >
+                    Predict Diabetes Risk
+                </button>
+
+
+                <button
+                    type="button"
+                    id="resetButton"
+                    class="reset-button"
+                >
+                    Reset
+                </button>
+
+            </div>
 
         </form>
 
+
+        <!-- Loading -->
 
         <div
             id="loading"
             class="loading hidden"
         >
-            Analyzing patient data...
+            <div class="spinner"></div>
+
+            <p>
+                Analyzing patient data...
+            </p>
         </div>
 
+
+        <!-- Result -->
 
         <div
             id="result"
@@ -185,30 +229,102 @@
 
             <h2>Prediction Result</h2>
 
-            <p>
-                <strong>Prediction:</strong>
-                <span id="predictionLabel"></span>
-            </p>
 
-            <p>
-                <strong>Probability:</strong>
-                <span id="probability"></span>
-            </p>
+            <div
+                id="riskBadge"
+                class="risk-badge"
+            >
+            </div>
 
-            <p>
-                <strong>Confidence:</strong>
-                <span id="confidence"></span>
-            </p>
 
-            <p id="message"></p>
+            <div class="probability-section">
+
+                <div class="probability-header">
+
+                    <span>
+                        Model Probability
+                    </span>
+
+                    <strong id="probability">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="progress-container">
+
+                    <div
+                        id="progressBar"
+                        class="progress-bar"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="result-details">
+
+                <div class="detail">
+
+                    <span>
+                        Confidence
+                    </span>
+
+                    <strong id="confidence">
+                    </strong>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <span>
+                        Prediction
+                    </span>
+
+                    <strong id="predictionValue">
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <p
+                id="message"
+                class="result-message"
+            >
+            </p>
 
         </div>
 
 
+        <!-- Error -->
+
         <div
             id="error"
             class="error hidden"
-        ></div>
+        >
+        </div>
+
+
+        <!-- Disclaimer -->
+
+        <div class="disclaimer">
+
+            <strong>Important:</strong>
+
+            This application provides a
+            machine-learning-based risk estimate
+            and is not a medical diagnosis.
+
+            Always consult a qualified healthcare
+            professional for medical advice.
+
+        </div>
 
     </div>
 
@@ -220,19 +336,46 @@
                 "predictionForm"
             );
 
+
         const result =
             document.getElementById(
                 "result"
             );
+
 
         const error =
             document.getElementById(
                 "error"
             );
 
+
         const loading =
             document.getElementById(
                 "loading"
+            );
+
+
+        const predictButton =
+            document.getElementById(
+                "predictButton"
+            );
+
+
+        const resetButton =
+            document.getElementById(
+                "resetButton"
+            );
+
+
+        const riskBadge =
+            document.getElementById(
+                "riskBadge"
+            );
+
+
+        const progressBar =
+            document.getElementById(
+                "progressBar"
             );
 
 
@@ -242,11 +385,21 @@
 
                 event.preventDefault();
 
-                result.classList.add("hidden");
 
-                error.classList.add("hidden");
+                result.classList.add(
+                    "hidden"
+                );
 
-                loading.classList.remove("hidden");
+                error.classList.add(
+                    "hidden"
+                );
+
+                loading.classList.remove(
+                    "hidden"
+                );
+
+
+                predictButton.disabled = true;
 
 
                 const data = {
@@ -335,27 +488,42 @@
 
                     if (!response.ok) {
 
-                        throw new Error(
+                        let errorMessage =
                             resultData.error ||
-                            "Prediction failed."
+                            "Prediction failed.";
+
+                        if (
+                            resultData.missing_fields
+                        ) {
+
+                            errorMessage +=
+                                " Missing: " +
+                                resultData
+                                    .missing_fields
+                                    .join(", ");
+
+                        }
+
+                        throw new Error(
+                            errorMessage
                         );
 
                     }
 
 
-                    document.getElementById(
-                        "predictionLabel"
-                    ).textContent =
-                        resultData.prediction_label;
+                    const probability =
+                        resultData.probability;
+
+
+                    const percentage =
+                        probability * 100;
 
 
                     document.getElementById(
                         "probability"
                     ).textContent =
-                        (
-                            resultData.probability *
-                            100
-                        ).toFixed(2) + "%";
+                        percentage.toFixed(2) +
+                        "%";
 
 
                     document.getElementById(
@@ -365,9 +533,46 @@
 
 
                     document.getElementById(
+                        "predictionValue"
+                    ).textContent =
+                        resultData.prediction;
+
+
+                    document.getElementById(
                         "message"
                     ).textContent =
                         resultData.message;
+
+
+                    riskBadge.textContent =
+                        resultData.prediction_label;
+
+
+                    progressBar.style.width =
+                        percentage + "%";
+
+
+                    if (
+                        resultData.prediction === 1
+                    ) {
+
+                        riskBadge.className =
+                            "risk-badge risk-high";
+
+                        progressBar.className =
+                            "progress-bar progress-high";
+
+                    }
+
+                    else {
+
+                        riskBadge.className =
+                            "risk-badge risk-low";
+
+                        progressBar.className =
+                            "progress-bar progress-low";
+
+                    }
 
 
                     result.classList.remove(
@@ -375,6 +580,7 @@
                     );
 
                 }
+
 
                 catch (err) {
 
@@ -387,13 +593,38 @@
 
                 }
 
+
                 finally {
 
                     loading.classList.add(
                         "hidden"
                     );
 
+                    predictButton.disabled =
+                        false;
+
                 }
+
+            }
+        );
+
+
+        resetButton.addEventListener(
+            "click",
+            function() {
+
+                form.reset();
+
+                result.classList.add(
+                    "hidden"
+                );
+
+                error.classList.add(
+                    "hidden"
+                );
+
+                progressBar.style.width =
+                    "0%";
 
             }
         );
