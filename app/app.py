@@ -1,6 +1,20 @@
-from flask import Flask, request, jsonify, render_template
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template
+)
 
-from src.prediction_pipeline import predict_diabetes
+from src.prediction_pipeline import (
+    predict_diabetes
+)
+
+from app.database import (
+    initialize_database,
+    save_prediction,
+    get_predictions,
+    clear_predictions
+)
 
 
 app = Flask(__name__)
@@ -32,7 +46,10 @@ FIELD_RANGES = {
 
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("index.html")
+
+    return render_template(
+        "index.html"
+    )
 
 
 @app.route("/predict", methods=["POST"])
@@ -41,9 +58,11 @@ def predict():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "error": "No input data provided."
         }), 400
+
 
     missing_fields = [
         field
@@ -51,27 +70,44 @@ def predict():
         if field not in data
     ]
 
+
     if missing_fields:
+
         return jsonify({
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }), 400
 
+
     for field in REQUIRED_FIELDS:
 
         value = data[field]
 
-        if isinstance(value, bool) or not isinstance(
+
+        if isinstance(
+            value,
+            bool
+        ) or not isinstance(
             value,
             (int, float)
         ):
+
             return jsonify({
-                "error": f"{field} must be a number."
+                "error":
+                    f"{field} must be a number."
             }), 400
 
-        minimum, maximum = FIELD_RANGES[field]
 
-        if value < minimum or value > maximum:
+        minimum, maximum = (
+            FIELD_RANGES[field]
+        )
+
+
+        if (
+            value < minimum
+            or value > maximum
+        ):
+
             return jsonify({
                 "error": (
                     f"{field} must be between "
@@ -79,11 +115,22 @@ def predict():
                 )
             }), 400
 
+
     try:
 
-        result = predict_diabetes(data)
+        result = predict_diabetes(
+            data
+        )
+
+
+        save_prediction(
+            data,
+            result
+        )
+
 
         return jsonify(result)
+
 
     except Exception as error:
 
@@ -93,7 +140,36 @@ def predict():
         }), 500
 
 
+@app.route(
+    "/history",
+    methods=["GET"]
+)
+def history():
+
+    predictions = get_predictions()
+
+    return jsonify({
+        "predictions": predictions
+    })
+
+
+@app.route(
+    "/history/clear",
+    methods=["DELETE"]
+)
+def clear_history():
+
+    clear_predictions()
+
+    return jsonify({
+        "message":
+            "Prediction history cleared."
+    })
+
+
 if __name__ == "__main__":
+
+    initialize_database()
 
     app.run(
         debug=True
