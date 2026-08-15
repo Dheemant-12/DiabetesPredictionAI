@@ -10,14 +10,17 @@ from src.prediction_pipeline import (
 )
 
 from app.database import (
-    initialize_database,
-    save_prediction,
-    get_predictions,
-    clear_predictions
+    initialize_database
+)
+
+from app.logger import (
+    setup_logger
 )
 
 
 app = Flask(__name__)
+
+logger = setup_logger()
 
 
 REQUIRED_FIELDS = [
@@ -52,15 +55,97 @@ def home():
     )
 
 
-@app.route("/predict", methods=["POST"])
+@app.route(
+    "/health",
+    methods=["GET"]
+)
+def health():
+
+    return jsonify({
+        "status": "healthy",
+        "service": "Diabetes Prediction API"
+    })
+
+
+@app.route(
+    "/model-status",
+    methods=["GET"]
+)
+def model_status():
+
+    try:
+
+        model_name = type(
+            predict_diabetes.__globals__["model"]
+        ).__name__
+
+        return jsonify({
+            "status": "loaded",
+            "model": model_name
+        })
+
+    except Exception as error:
+
+        logger.error(
+            "Model status check failed: %s",
+            error
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": str(error)
+        }), 500
+
+
+@app.route(
+    "/database-status",
+    methods=["GET"]
+)
+def database_status():
+
+    try:
+
+        initialize_database()
+
+        return jsonify({
+            "status": "connected",
+            "database": "SQLite"
+        })
+
+    except Exception as error:
+
+        logger.error(
+            "Database status check failed: %s",
+            error
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": str(error)
+        }), 500
+
+
+@app.route(
+    "/predict",
+    methods=["POST"]
+)
 def predict():
 
     data = request.get_json()
 
+    logger.info(
+        "Prediction request received"
+    )
+
     if not data:
 
+        logger.warning(
+            "Prediction request contained no data"
+        )
+
         return jsonify({
-            "error": "No input data provided."
+            "error":
+                "No input data provided."
         }), 400
 
 
@@ -73,9 +158,16 @@ def predict():
 
     if missing_fields:
 
+        logger.warning(
+            "Missing fields: %s",
+            missing_fields
+        )
+
         return jsonify({
-            "error": "Missing required fields.",
-            "missing_fields": missing_fields
+            "error":
+                "Missing required fields.",
+            "missing_fields":
+                missing_fields
         }), 400
 
 
@@ -84,13 +176,18 @@ def predict():
         value = data[field]
 
 
-        if isinstance(
-            value,
-            bool
-        ) or not isinstance(
-            value,
-            (int, float)
+        if (
+            isinstance(value, bool)
+            or not isinstance(
+                value,
+                (int, float)
+            )
         ):
+
+            logger.warning(
+                "Invalid value for %s",
+                field
+            )
 
             return jsonify({
                 "error":
@@ -108,6 +205,11 @@ def predict():
             or value > maximum
         ):
 
+            logger.warning(
+                "%s outside valid range",
+                field
+            )
+
             return jsonify({
                 "error": (
                     f"{field} must be between "
@@ -122,54 +224,35 @@ def predict():
             data
         )
 
-
-        save_prediction(
-            data,
-            result
+        logger.info(
+            "Prediction completed successfully: %s",
+            result["prediction"]
         )
-
 
         return jsonify(result)
 
 
     except Exception as error:
 
+        logger.exception(
+            "Prediction failed"
+        )
+
         return jsonify({
-            "error": "Prediction failed.",
-            "details": str(error)
+            "error":
+                "Prediction failed.",
+            "details":
+                str(error)
         }), 500
-
-
-@app.route(
-    "/history",
-    methods=["GET"]
-)
-def history():
-
-    predictions = get_predictions()
-
-    return jsonify({
-        "predictions": predictions
-    })
-
-
-@app.route(
-    "/history/clear",
-    methods=["DELETE"]
-)
-def clear_history():
-
-    clear_predictions()
-
-    return jsonify({
-        "message":
-            "Prediction history cleared."
-    })
 
 
 if __name__ == "__main__":
 
     initialize_database()
+
+    logger.info(
+        "Starting Diabetes Prediction API"
+    )
 
     app.run(
         debug=True

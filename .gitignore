@@ -16,3 +16,11 @@ Thumbs.db
 # Model files (added later)
 *.pkl
 *.joblib
+.venv-1/
+__pycache__/
+*.pyc
+
+logs/
+data/predictions.db
+
+models/*.joblib
