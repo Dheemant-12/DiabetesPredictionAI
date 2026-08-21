@@ -55,7 +55,6 @@
 
             <form id="predictionForm">
 
-
                 <div class="form-grid">
 
 
@@ -211,9 +210,7 @@
                     id="predictButton"
                     class="predict-button"
                 >
-
                     Predict Diabetes Risk
-
                 </button>
 
             </form>
@@ -255,7 +252,9 @@
 
             <div class="result-header">
 
-                <h2>Prediction Result</h2>
+                <h2>
+                    Prediction Result
+                </h2>
 
                 <span
                     id="riskBadge"
@@ -302,9 +301,7 @@
                         Model Prediction
                     </span>
 
-                    <strong
-                        id="predictionValue"
-                    >
+                    <strong id="predictionValue">
                     </strong>
 
                 </div>
@@ -316,9 +313,7 @@
                         Confidence
                     </span>
 
-                    <strong
-                        id="confidence"
-                    >
+                    <strong id="confidence">
                     </strong>
 
                 </div>
@@ -335,11 +330,57 @@
         </section>
 
 
+        <!-- Prediction History -->
+
+        <section
+            id="historySection"
+            class="card history-section"
+        >
+
+            <div class="history-header">
+
+                <div>
+
+                    <h2>
+                        Prediction History
+                    </h2>
+
+                    <p class="section-description">
+                        Previous diabetes risk predictions.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="clearHistoryButton"
+                    class="clear-button"
+                >
+                    Clear History
+                </button>
+
+            </div>
+
+
+            <div id="historyContainer">
+
+                <p class="history-empty">
+                    Loading prediction history...
+                </p>
+
+            </div>
+
+        </section>
+
+
         <!-- Disclaimer -->
 
         <section class="disclaimer">
 
-            <strong>Medical Disclaimer</strong>
+            <strong>
+                Medical Disclaimer
+            </strong>
 
             <p>
                 This application provides a
@@ -398,6 +439,176 @@
             );
 
 
+        const historyContainer =
+            document.getElementById(
+                "historyContainer"
+            );
+
+
+        const clearHistoryButton =
+            document.getElementById(
+                "clearHistoryButton"
+            );
+
+
+        /*
+        ==========================================
+        LOAD PREDICTION HISTORY
+        ==========================================
+        */
+
+        async function loadHistory() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/history"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Failed to load prediction history."
+                    );
+
+                }
+
+
+                const predictions =
+                    data.predictions || [];
+
+
+                if (
+                    predictions.length === 0
+                ) {
+
+                    historyContainer.innerHTML =
+                        `
+                        <p class="history-empty">
+                            No predictions yet.
+                        </p>
+                        `;
+
+                    return;
+
+                }
+
+
+                historyContainer.innerHTML =
+                    "";
+
+
+                predictions.forEach(
+                    function(prediction) {
+
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        item.className =
+                            "history-item";
+
+
+                        const risk =
+                            prediction.prediction === 1
+                                ? "Diabetes Risk"
+                                : "Lower Diabetes Risk";
+
+
+                        const probability =
+                            (
+                                Number(
+                                    prediction.probability
+                                ) * 100
+                            ).toFixed(2);
+
+
+                        item.innerHTML = `
+
+                            <div class="history-details">
+
+                                <strong>
+                                    ${risk}
+                                </strong>
+
+                                <span>
+                                    Glucose:
+                                    ${prediction.glucose}
+                                </span>
+
+                                <span>
+                                    BMI:
+                                    ${prediction.bmi}
+                                </span>
+
+                                <span>
+                                    Age:
+                                    ${prediction.age}
+                                </span>
+
+                            </div>
+
+
+                            <div class="history-result">
+
+                                <strong>
+                                    ${probability}%
+                                </strong>
+
+                                <span>
+                                    ${prediction.confidence}
+                                </span>
+
+                            </div>
+
+                        `;
+
+
+                        historyContainer.appendChild(
+                            item
+                        );
+
+                    }
+                );
+
+            }
+
+
+            catch (historyError) {
+
+                console.error(
+                    "Failed to load prediction history:",
+                    historyError
+                );
+
+
+                historyContainer.innerHTML =
+                    `
+                    <p class="history-empty">
+                        Unable to load prediction history.
+                    </p>
+                    `;
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        PREDICTION FORM
+        ==========================================
+        */
+
         form.addEventListener(
             "submit",
             async function(event) {
@@ -409,13 +620,16 @@
                     "hidden"
                 );
 
+
                 error.classList.add(
                     "hidden"
                 );
 
+
                 loading.classList.remove(
                     "hidden"
                 );
+
 
                 predictButton.disabled =
                     true;
@@ -518,7 +732,9 @@
 
 
                     const percentage =
-                        data.probability * 100;
+                        Number(
+                            data.probability
+                        ) * 100;
 
 
                     document.getElementById(
@@ -557,19 +773,25 @@
                         riskBadge.textContent =
                             "Higher Risk";
 
+
                         riskBadge.className =
                             "risk-badge risk-high";
+
 
                         progressBar.className =
                             "progress-bar progress-high";
 
-                    } else {
+                    }
+
+                    else {
 
                         riskBadge.textContent =
                             "Lower Risk";
 
+
                         riskBadge.className =
                             "risk-badge risk-low";
+
 
                         progressBar.className =
                             "progress-bar progress-low";
@@ -581,6 +803,14 @@
                         "hidden"
                     );
 
+
+                    /*
+                    Refresh history after
+                    successful prediction.
+                    */
+
+                    loadHistory();
+
                 }
 
 
@@ -588,6 +818,7 @@
 
                     error.textContent =
                         err.message;
+
 
                     error.classList.remove(
                         "hidden"
@@ -602,6 +833,7 @@
                         "hidden"
                     );
 
+
                     predictButton.disabled =
                         false;
 
@@ -609,6 +841,86 @@
 
             }
         );
+
+
+        /*
+        ==========================================
+        CLEAR PREDICTION HISTORY
+        ==========================================
+        */
+
+        clearHistoryButton.addEventListener(
+            "click",
+            async function() {
+
+                const confirmed =
+                    confirm(
+                        "Clear all prediction history?"
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/history/clear",
+                            {
+                                method: "DELETE"
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.error ||
+                            "Failed to clear history."
+                        );
+
+                    }
+
+
+                    await loadHistory();
+
+                }
+
+
+                catch (clearError) {
+
+                    console.error(
+                        "Failed to clear history:",
+                        clearError
+                    );
+
+
+                    alert(
+                        "Could not clear prediction history."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+        ==========================================
+        LOAD HISTORY WHEN PAGE OPENS
+        ==========================================
+        */
+
+        loadHistory();
 
     </script>
 

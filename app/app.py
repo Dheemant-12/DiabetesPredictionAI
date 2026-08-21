@@ -10,7 +10,10 @@ from src.prediction_pipeline import (
 )
 
 from app.database import (
-    initialize_database
+    initialize_database,
+    save_prediction,
+    get_predictions,
+    clear_predictions
 )
 
 from app.logger import (
@@ -224,10 +227,18 @@ def predict():
             data
         )
 
+
+        save_prediction(
+            data,
+            result
+        )
+
+
         logger.info(
             "Prediction completed successfully: %s",
             result["prediction"]
         )
+
 
         return jsonify(result)
 
@@ -246,13 +257,83 @@ def predict():
         }), 500
 
 
+@app.route(
+    "/history",
+    methods=["GET"]
+)
+def history():
+
+    try:
+
+        predictions = get_predictions()
+
+
+        return jsonify({
+            "predictions": predictions
+        })
+
+
+    except Exception as error:
+
+        logger.exception(
+            "Failed to retrieve prediction history"
+        )
+
+
+        return jsonify({
+            "error":
+                "Failed to retrieve prediction history.",
+            "details":
+                str(error)
+        }), 500
+
+
+@app.route(
+    "/history/clear",
+    methods=["DELETE"]
+)
+def clear_history():
+
+    try:
+
+        clear_predictions()
+
+
+        logger.info(
+            "Prediction history cleared"
+        )
+
+
+        return jsonify({
+            "message":
+                "Prediction history cleared."
+        })
+
+
+    except Exception as error:
+
+        logger.exception(
+            "Failed to clear prediction history"
+        )
+
+
+        return jsonify({
+            "error":
+                "Failed to clear prediction history.",
+            "details":
+                str(error)
+        }), 500
+
+
 if __name__ == "__main__":
 
     initialize_database()
 
+
     logger.info(
         "Starting Diabetes Prediction API"
     )
+
 
     app.run(
         debug=True
