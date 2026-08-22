@@ -1,3 +1,4 @@
+import json
 from flask import (
     Flask,
     request,
@@ -78,25 +79,63 @@ def model_status():
 
     try:
 
-        model_name = type(
-            predict_diabetes.__globals__["model"]
-        ).__name__
+        with open(
+            "models/model_metadata.json",
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            metadata = json.load(
+                file
+            )
+
 
         return jsonify({
-            "status": "loaded",
-            "model": model_name
+
+            "status":
+                "loaded",
+
+            "model":
+                metadata["model_name"],
+
+            "selection_metric":
+                metadata["selection_metric"],
+
+            "secondary_metric":
+                metadata["secondary_metric"],
+
+            "accuracy":
+                metadata["accuracy"],
+
+            "precision":
+                metadata["precision"],
+
+            "recall":
+                metadata["recall"],
+
+            "f1_score":
+                metadata["f1_score"],
+
+            "roc_auc":
+                metadata["roc_auc"]
+
         })
+
 
     except Exception as error:
 
-        logger.error(
-            "Model status check failed: %s",
-            error
+        logger.exception(
+            "Model status check failed"
         )
 
         return jsonify({
-            "status": "error",
-            "message": str(error)
+
+            "status":
+                "error",
+
+            "message":
+                str(error)
+
         }), 500
 
 

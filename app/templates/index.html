@@ -372,7 +372,138 @@
             </div>
 
         </section>
+<!-- Model Information -->
 
+<section
+    id="modelSection"
+    class="card model-section"
+>
+
+    <div class="model-header">
+
+        <div>
+
+            <h2>
+                Model Information
+            </h2>
+
+            <p class="section-description">
+                Information about the machine-learning
+                model currently powering predictions.
+            </p>
+
+        </div>
+
+        <span
+            id="modelStatusBadge"
+            class="model-status-badge"
+        >
+            Loading...
+        </span>
+
+    </div>
+
+
+    <div class="model-name-box">
+
+        <span>
+            Production Model
+        </span>
+
+        <strong id="modelName">
+            Loading...
+        </strong>
+
+    </div>
+
+
+    <div class="metrics-grid">
+
+        <div class="metric-item">
+
+            <span>
+                Accuracy
+            </span>
+
+            <strong id="modelAccuracy">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span>
+                Precision
+            </span>
+
+            <strong id="modelPrecision">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span>
+                Recall
+            </span>
+
+            <strong id="modelRecall">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span>
+                F1 Score
+            </span>
+
+            <strong id="modelF1">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span>
+                ROC AUC
+            </span>
+
+            <strong id="modelRocAuc">
+                -
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <p class="model-selection-info">
+
+        Model selection prioritizes
+        <strong id="selectionMetric">
+            ROC AUC
+        </strong>
+
+        with
+
+        <strong id="secondaryMetric">
+            Recall
+        </strong>
+
+        as the secondary metric.
+
+    </p>
+
+</section>
 
         <!-- Disclaimer -->
 
@@ -396,6 +527,140 @@
 
 
     <script>
+        /*
+        ==========================================
+        LOAD MODEL INFORMATION
+        ==========================================
+        */
+
+        async function loadModelInformation() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/model-status"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to load model information."
+                    );
+
+                }
+
+
+                document.getElementById(
+                    "modelName"
+                ).textContent =
+                    data.model;
+
+
+                document.getElementById(
+                    "modelAccuracy"
+                ).textContent =
+                    Number(
+                        data.accuracy
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelPrecision"
+                ).textContent =
+                    Number(
+                        data.precision
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelRecall"
+                ).textContent =
+                    Number(
+                        data.recall
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelF1"
+                ).textContent =
+                    Number(
+                        data.f1_score
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelRocAuc"
+                ).textContent =
+                    Number(
+                        data.roc_auc
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "selectionMetric"
+                ).textContent =
+                    data.selection_metric;
+
+
+                document.getElementById(
+                    "secondaryMetric"
+                ).textContent =
+                    data.secondary_metric;
+
+
+                const statusBadge =
+                    document.getElementById(
+                        "modelStatusBadge"
+                    );
+
+
+                statusBadge.textContent =
+                    "Model Loaded";
+
+
+                statusBadge.className =
+                    "model-status-badge model-loaded";
+
+            }
+
+
+            catch (modelError) {
+
+                console.error(
+                    "Failed to load model information:",
+                    modelError
+                );
+
+
+                const statusBadge =
+                    document.getElementById(
+                        "modelStatusBadge"
+                    );
+
+
+                statusBadge.textContent =
+                    "Unavailable";
+
+
+                statusBadge.className =
+                    "model-status-badge model-error";
+
+
+                document.getElementById(
+                    "modelName"
+                ).textContent =
+                    "Unable to load model information.";
+
+            }
+
+        }
 
         const form =
             document.getElementById(
@@ -601,6 +866,7 @@
             }
 
         }
+        loadModelInformation();
 
 
         /*
