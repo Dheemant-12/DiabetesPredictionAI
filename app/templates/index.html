@@ -24,6 +24,8 @@
 
     <main class="container">
 
+        <!-- HERO -->
+
         <section class="hero">
 
             <p class="eyebrow">
@@ -42,11 +44,13 @@
         </section>
 
 
-        <!-- Prediction Form -->
+        <!-- PREDICTION FORM -->
 
         <section class="card">
 
-            <h2>Patient Information</h2>
+            <h2>
+                Patient Information
+            </h2>
 
             <p class="section-description">
                 Enter all values below to generate a prediction.
@@ -56,7 +60,6 @@
             <form id="predictionForm">
 
                 <div class="form-grid">
-
 
                     <div class="form-group">
 
@@ -218,7 +221,7 @@
         </section>
 
 
-        <!-- Loading -->
+        <!-- LOADING -->
 
         <div
             id="loading"
@@ -234,7 +237,7 @@
         </div>
 
 
-        <!-- Error -->
+        <!-- ERROR -->
 
         <div
             id="error"
@@ -243,7 +246,7 @@
         </div>
 
 
-        <!-- Prediction Result -->
+        <!-- PREDICTION RESULT -->
 
         <section
             id="result"
@@ -327,10 +330,32 @@
             >
             </p>
 
+
+            <!-- PREDICTION EXPLANATION -->
+
+            <div
+                id="explanationSection"
+                class="explanation-section"
+            >
+
+                <h3>
+                    Why this prediction?
+                </h3>
+
+                <p class="explanation-intro">
+                    These patient factors provide context
+                    for the prediction.
+                </p>
+
+                <div id="explanationContainer">
+                </div>
+
+            </div>
+
         </section>
 
 
-        <!-- Prediction History -->
+        <!-- PREDICTION HISTORY -->
 
         <section
             id="historySection"
@@ -372,140 +397,145 @@
             </div>
 
         </section>
-<!-- Model Information -->
 
-<section
-    id="modelSection"
-    class="card model-section"
->
 
-    <div class="model-header">
+        <!-- MODEL INFORMATION -->
 
-        <div>
+        <section
+            id="modelSection"
+            class="card model-section"
+        >
 
-            <h2>
-                Model Information
-            </h2>
+            <div class="model-header">
 
-            <p class="section-description">
-                Information about the machine-learning
-                model currently powering predictions.
+                <div>
+
+                    <h2>
+                        Model Information
+                    </h2>
+
+                    <p class="section-description">
+                        Information about the machine-learning
+                        model currently powering predictions.
+                    </p>
+
+                </div>
+
+
+                <span
+                    id="modelStatusBadge"
+                    class="model-status-badge"
+                >
+                    Loading...
+                </span>
+
+            </div>
+
+
+            <div class="model-name-box">
+
+                <span>
+                    Production Model
+                </span>
+
+                <strong id="modelName">
+                    Loading...
+                </strong>
+
+            </div>
+
+
+            <div class="metrics-grid">
+
+                <div class="metric-item">
+
+                    <span>
+                        Accuracy
+                    </span>
+
+                    <strong id="modelAccuracy">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-item">
+
+                    <span>
+                        Precision
+                    </span>
+
+                    <strong id="modelPrecision">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-item">
+
+                    <span>
+                        Recall
+                    </span>
+
+                    <strong id="modelRecall">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-item">
+
+                    <span>
+                        F1 Score
+                    </span>
+
+                    <strong id="modelF1">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-item">
+
+                    <span>
+                        ROC AUC
+                    </span>
+
+                    <strong id="modelRocAuc">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <p class="model-selection-info">
+
+                Model selection prioritizes
+
+                <strong id="selectionMetric">
+                    ROC AUC
+                </strong>
+
+                with
+
+                <strong id="secondaryMetric">
+                    Recall
+                </strong>
+
+                as the secondary metric.
+
             </p>
 
-        </div>
-
-        <span
-            id="modelStatusBadge"
-            class="model-status-badge"
-        >
-            Loading...
-        </span>
-
-    </div>
+        </section>
 
 
-    <div class="model-name-box">
-
-        <span>
-            Production Model
-        </span>
-
-        <strong id="modelName">
-            Loading...
-        </strong>
-
-    </div>
-
-
-    <div class="metrics-grid">
-
-        <div class="metric-item">
-
-            <span>
-                Accuracy
-            </span>
-
-            <strong id="modelAccuracy">
-                -
-            </strong>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span>
-                Precision
-            </span>
-
-            <strong id="modelPrecision">
-                -
-            </strong>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span>
-                Recall
-            </span>
-
-            <strong id="modelRecall">
-                -
-            </strong>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span>
-                F1 Score
-            </span>
-
-            <strong id="modelF1">
-                -
-            </strong>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span>
-                ROC AUC
-            </span>
-
-            <strong id="modelRocAuc">
-                -
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <p class="model-selection-info">
-
-        Model selection prioritizes
-        <strong id="selectionMetric">
-            ROC AUC
-        </strong>
-
-        with
-
-        <strong id="secondaryMetric">
-            Recall
-        </strong>
-
-        as the secondary metric.
-
-    </p>
-
-</section>
-
-        <!-- Disclaimer -->
+        <!-- DISCLAIMER -->
 
         <section class="disclaimer">
 
@@ -527,140 +557,12 @@
 
 
     <script>
+
         /*
         ==========================================
-        LOAD MODEL INFORMATION
+        DOM ELEMENTS
         ==========================================
         */
-
-        async function loadModelInformation() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/model-status"
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.message ||
-                        "Failed to load model information."
-                    );
-
-                }
-
-
-                document.getElementById(
-                    "modelName"
-                ).textContent =
-                    data.model;
-
-
-                document.getElementById(
-                    "modelAccuracy"
-                ).textContent =
-                    Number(
-                        data.accuracy
-                    ).toFixed(4);
-
-
-                document.getElementById(
-                    "modelPrecision"
-                ).textContent =
-                    Number(
-                        data.precision
-                    ).toFixed(4);
-
-
-                document.getElementById(
-                    "modelRecall"
-                ).textContent =
-                    Number(
-                        data.recall
-                    ).toFixed(4);
-
-
-                document.getElementById(
-                    "modelF1"
-                ).textContent =
-                    Number(
-                        data.f1_score
-                    ).toFixed(4);
-
-
-                document.getElementById(
-                    "modelRocAuc"
-                ).textContent =
-                    Number(
-                        data.roc_auc
-                    ).toFixed(4);
-
-
-                document.getElementById(
-                    "selectionMetric"
-                ).textContent =
-                    data.selection_metric;
-
-
-                document.getElementById(
-                    "secondaryMetric"
-                ).textContent =
-                    data.secondary_metric;
-
-
-                const statusBadge =
-                    document.getElementById(
-                        "modelStatusBadge"
-                    );
-
-
-                statusBadge.textContent =
-                    "Model Loaded";
-
-
-                statusBadge.className =
-                    "model-status-badge model-loaded";
-
-            }
-
-
-            catch (modelError) {
-
-                console.error(
-                    "Failed to load model information:",
-                    modelError
-                );
-
-
-                const statusBadge =
-                    document.getElementById(
-                        "modelStatusBadge"
-                    );
-
-
-                statusBadge.textContent =
-                    "Unavailable";
-
-
-                statusBadge.className =
-                    "model-status-badge model-error";
-
-
-                document.getElementById(
-                    "modelName"
-                ).textContent =
-                    "Unable to load model information.";
-
-            }
-
-        }
 
         const form =
             document.getElementById(
@@ -713,6 +615,12 @@
         const clearHistoryButton =
             document.getElementById(
                 "clearHistoryButton"
+            );
+
+
+        const explanationContainer =
+            document.getElementById(
+                "explanationContainer"
             );
 
 
@@ -866,7 +774,267 @@
             }
 
         }
-        loadModelInformation();
+
+
+        /*
+        ==========================================
+        LOAD MODEL INFORMATION
+        ==========================================
+        */
+
+        async function loadModelInformation() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/model-status"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to load model information."
+                    );
+
+                }
+
+
+                document.getElementById(
+                    "modelName"
+                ).textContent =
+                    data.model;
+
+
+                document.getElementById(
+                    "modelAccuracy"
+                ).textContent =
+                    Number(
+                        data.accuracy
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelPrecision"
+                ).textContent =
+                    Number(
+                        data.precision
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelRecall"
+                ).textContent =
+                    Number(
+                        data.recall
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelF1"
+                ).textContent =
+                    Number(
+                        data.f1_score
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "modelRocAuc"
+                ).textContent =
+                    Number(
+                        data.roc_auc
+                    ).toFixed(4);
+
+
+                document.getElementById(
+                    "selectionMetric"
+                ).textContent =
+                    data.selection_metric;
+
+
+                document.getElementById(
+                    "secondaryMetric"
+                ).textContent =
+                    data.secondary_metric;
+
+
+                const statusBadge =
+                    document.getElementById(
+                        "modelStatusBadge"
+                    );
+
+
+                statusBadge.textContent =
+                    "Model Loaded";
+
+
+                statusBadge.className =
+                    "model-status-badge model-loaded";
+
+            }
+
+
+            catch (modelError) {
+
+                console.error(
+                    "Failed to load model information:",
+                    modelError
+                );
+
+
+                const statusBadge =
+                    document.getElementById(
+                        "modelStatusBadge"
+                    );
+
+
+                statusBadge.textContent =
+                    "Unavailable";
+
+
+                statusBadge.className =
+                    "model-status-badge model-error";
+
+
+                document.getElementById(
+                    "modelName"
+                ).textContent =
+                    "Unable to load model information.";
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        LOAD PREDICTION EXPLANATION
+        ==========================================
+        */
+
+        async function loadExplanation(
+            patientData
+        ) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/explain",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    patientData
+                                )
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Failed to generate explanation."
+                    );
+
+                }
+
+
+                explanationContainer.innerHTML =
+                    "";
+
+
+                data.explanations.forEach(
+                    function(explanation) {
+
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        item.className =
+                            "explanation-item";
+
+
+                        item.innerHTML = `
+
+                            <div class="explanation-info">
+
+                                <strong>
+                                    ${explanation.feature}
+                                </strong>
+
+                                <span>
+                                    Value:
+                                    ${explanation.value}
+                                </span>
+
+                            </div>
+
+
+                            <span
+                                class="
+                                    explanation-impact
+                                    impact-${explanation.impact.toLowerCase()}
+                                "
+                            >
+                                ${explanation.impact}
+                            </span>
+
+
+                            <p>
+                                ${explanation.message}
+                            </p>
+
+                        `;
+
+
+                        explanationContainer.appendChild(
+                            item
+                        );
+
+                    }
+                );
+
+            }
+
+
+            catch (explanationError) {
+
+                console.error(
+                    "Explanation error:",
+                    explanationError
+                );
+
+
+                explanationContainer.innerHTML =
+                    `
+                    <p class="explanation-error">
+                        Explanation is currently unavailable.
+                    </p>
+                    `;
+
+            }
+
+        }
 
 
         /*
@@ -964,6 +1132,12 @@
 
                 try {
 
+                    /*
+                    ==============================
+                    RUN PREDICTION
+                    ==============================
+                    */
+
                     const response =
                         await fetch(
                             "/predict",
@@ -996,6 +1170,12 @@
 
                     }
 
+
+                    /*
+                    ==============================
+                    DISPLAY PREDICTION
+                    ==============================
+                    */
 
                     const percentage =
                         Number(
@@ -1071,11 +1251,23 @@
 
 
                     /*
-                    Refresh history after
-                    successful prediction.
+                    ==============================
+                    LOAD EXPLANATION
+                    ==============================
                     */
 
-                    loadHistory();
+                    await loadExplanation(
+                        patientData
+                    );
+
+
+                    /*
+                    ==============================
+                    REFRESH HISTORY
+                    ==============================
+                    */
+
+                    await loadHistory();
 
                 }
 
@@ -1182,11 +1374,13 @@
 
         /*
         ==========================================
-        LOAD HISTORY WHEN PAGE OPENS
+        LOAD DATA WHEN PAGE OPENS
         ==========================================
         */
 
         loadHistory();
+
+        loadModelInformation();
 
     </script>
 

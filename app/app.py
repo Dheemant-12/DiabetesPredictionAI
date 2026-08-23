@@ -10,6 +10,10 @@ from src.prediction_pipeline import (
     predict_diabetes
 )
 
+from src.explain import (
+    explain_prediction
+)
+
 from app.database import (
     initialize_database,
     save_prediction,
@@ -363,7 +367,117 @@ def clear_history():
                 str(error)
         }), 500
 
+@app.route(
+    "/explain",
+    methods=["POST"]
+)
+def explain():
 
+    data = request.get_json()
+
+
+    logger.info(
+        "Explanation request received"
+    )
+
+
+    if not data:
+
+        return jsonify({
+            "error":
+                "No input data provided."
+        }), 400
+
+
+    missing_fields = [
+        field
+        for field in REQUIRED_FIELDS
+        if field not in data
+    ]
+
+
+    if missing_fields:
+
+        return jsonify({
+
+            "error":
+                "Missing required fields.",
+
+            "missing_fields":
+                missing_fields
+
+        }), 400
+
+
+    for field in REQUIRED_FIELDS:
+
+        value = data[field]
+
+
+        if (
+            isinstance(value, bool)
+            or not isinstance(
+                value,
+                (int, float)
+            )
+        ):
+
+            return jsonify({
+
+                "error":
+                    f"{field} must be a number."
+
+            }), 400
+
+
+        minimum, maximum = (
+            FIELD_RANGES[field]
+        )
+
+
+        if (
+            value < minimum
+            or value > maximum
+        ):
+
+            return jsonify({
+
+                "error": (
+                    f"{field} must be between "
+                    f"{minimum} and {maximum}."
+                )
+
+            }), 400
+
+
+    try:
+
+        result = explain_prediction(
+            data
+        )
+
+
+        return jsonify(
+            result
+        )
+
+
+    except Exception as error:
+
+        logger.exception(
+            "Explanation failed"
+        )
+
+
+        return jsonify({
+
+            "error":
+                "Failed to generate explanation.",
+
+            "details":
+                str(error)
+
+        }), 500
 if __name__ == "__main__":
 
     initialize_database()
