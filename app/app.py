@@ -18,7 +18,8 @@ from app.database import (
     initialize_database,
     save_prediction,
     get_predictions,
-    clear_predictions
+    clear_predictions,
+    get_prediction_analytics
 )
 
 from app.logger import (
@@ -473,6 +474,40 @@ def explain():
 
             "error":
                 "Failed to generate explanation.",
+
+            "details":
+                str(error)
+
+        }), 500
+@app.route(
+    "/analytics",
+    methods=["GET"]
+)
+def analytics():
+
+    try:
+
+        analytics_data = (
+            get_prediction_analytics()
+        )
+
+
+        return jsonify(
+            analytics_data
+        )
+
+
+    except Exception as error:
+
+        logger.exception(
+            "Analytics request failed"
+        )
+
+
+        return jsonify({
+
+            "error":
+                "Failed to retrieve analytics.",
 
             "details":
                 str(error)

@@ -131,3 +131,80 @@ def clear_predictions():
     connection.commit()
 
     connection.close()
+def get_prediction_analytics():
+
+    predictions = get_predictions()
+
+    total_predictions = len(
+        predictions
+    )
+
+    if total_predictions == 0:
+
+        return {
+            "total_predictions": 0,
+            "higher_risk": 0,
+            "lower_risk": 0,
+            "higher_risk_percentage": 0,
+            "lower_risk_percentage": 0,
+            "average_probability": 0
+        }
+
+
+    higher_risk = sum(
+        1
+        for prediction in predictions
+        if prediction["prediction"] == 1
+    )
+
+
+    lower_risk = (
+        total_predictions -
+        higher_risk
+    )
+
+
+    average_probability = sum(
+        float(
+            prediction["probability"]
+        )
+        for prediction in predictions
+    ) / total_predictions
+
+
+    return {
+
+        "total_predictions":
+            total_predictions,
+
+        "higher_risk":
+            higher_risk,
+
+        "lower_risk":
+            lower_risk,
+
+        "higher_risk_percentage":
+            round(
+                (
+                    higher_risk /
+                    total_predictions
+                ) * 100,
+                2
+            ),
+
+        "lower_risk_percentage":
+            round(
+                (
+                    lower_risk /
+                    total_predictions
+                ) * 100,
+                2
+            ),
+
+        "average_probability":
+            round(
+                average_probability * 100,
+                2
+            )
+
+    }
