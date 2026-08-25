@@ -19,7 +19,8 @@ from app.database import (
     save_prediction,
     get_predictions,
     clear_predictions,
-    get_prediction_analytics
+    get_prediction_analytics,
+    get_recent_predictions
 )
 
 from app.logger import (
@@ -508,6 +509,37 @@ def analytics():
 
             "error":
                 "Failed to retrieve analytics.",
+
+            "details":
+                str(error)
+
+        }), 500
+@app.route(
+    "/analytics/recent",
+    methods=["GET"]
+)
+def analytics_recent():
+
+    try:
+
+        predictions = (
+            get_recent_predictions()
+        )
+
+        return jsonify({
+            "predictions": predictions
+        })
+
+    except Exception as error:
+
+        logger.exception(
+            "Failed to retrieve recent predictions"
+        )
+
+        return jsonify({
+
+            "error":
+                "Failed to retrieve recent predictions.",
 
             "details":
                 str(error)

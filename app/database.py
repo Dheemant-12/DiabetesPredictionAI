@@ -207,4 +207,9 @@ def get_prediction_analytics():
                 2
             )
 
-    }
+    } 
+def get_recent_predictions(limit=10):
+
+    predictions = get_predictions()
+
+    return predictions[:limit]
