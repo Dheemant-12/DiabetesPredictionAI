@@ -24,3 +24,4 @@ logs/
 data/predictions.db
 
 models/*.joblib
+data/test_predictions.db

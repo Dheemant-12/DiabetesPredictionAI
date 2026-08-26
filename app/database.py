@@ -2,7 +2,10 @@ import os
 import sqlite3
 
 
-DATABASE_PATH = "data/predictions.db"
+DATABASE_PATH = os.environ.get(
+    "DIABETES_DATABASE_PATH",
+    "data/predictions.db"
+)
 
 
 def get_connection():

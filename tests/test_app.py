@@ -1,7 +1,12 @@
+import os
+
+os.environ["DIABETES_DATABASE_PATH"] = (
+    "data/test_predictions.db"
+)
+
 import pytest
 
 from app.app import app
-
 
 @pytest.fixture
 def client():
