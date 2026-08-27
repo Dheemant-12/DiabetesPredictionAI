@@ -25,3 +25,8 @@ data/predictions.db
 
 models/*.joblib
 data/test_predictions.db
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+data/test_predictions.db

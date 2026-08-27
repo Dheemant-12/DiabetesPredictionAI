@@ -1,6 +1,8 @@
 import json
 import math
 
+from dotenv import load_dotenv
+
 from flask import (
     Flask,
     request,
@@ -8,10 +10,12 @@ from flask import (
     render_template
 )
 
+# Load environment variables
+load_dotenv()
+
 from src.prediction_pipeline import (
     predict_diabetes
 )
-
 from src.explain import (
     explain_prediction
 )
