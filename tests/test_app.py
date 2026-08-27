@@ -274,3 +274,134 @@ def test_invalid_age(client):
         "Age must be between 1 and 120."
         == result["error"]
     )
+# ==========================================
+# INVALID JSON TEST
+# ==========================================
+
+def test_invalid_json(client):
+
+    response = client.post(
+        "/predict",
+        data="this is not json",
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert (
+        data["error"]
+        == "Request body must contain valid JSON."
+    )
+
+
+# ==========================================
+# NULL JSON TEST
+# ==========================================
+
+def test_null_json(client):
+
+    response = client.post(
+        "/predict",
+        json=None
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert (
+        data["error"]
+        == "Request body must contain valid JSON."
+    )
+
+
+# ==========================================
+# INVALID DATA TYPE TEST
+# ==========================================
+
+def test_invalid_data_type(client):
+
+    data = valid_patient()
+
+    data["Glucose"] = "high"
+
+    response = client.post(
+        "/predict",
+        json=data
+    )
+
+    assert response.status_code == 400
+
+    result = response.get_json()
+
+    assert (
+        result["error"]
+        == "Glucose must be a number."
+    )
+
+
+# ==========================================
+# BOOLEAN VALUE TEST
+# ==========================================
+
+def test_boolean_value(client):
+
+    data = valid_patient()
+
+    data["Age"] = True
+
+    response = client.post(
+        "/predict",
+        json=data
+    )
+
+    assert response.status_code == 400
+
+    result = response.get_json()
+
+    assert (
+        result["error"]
+        == "Age must be a number."
+    )
+
+
+# ==========================================
+# UNKNOWN ENDPOINT TEST
+# ==========================================
+
+def test_unknown_endpoint(client):
+
+    response = client.get(
+        "/does-not-exist"
+    )
+
+    assert response.status_code == 404
+
+    data = response.get_json()
+
+    assert (
+        data["error"]
+        == "Endpoint not found."
+    )
+
+
+# ==========================================
+# WRONG METHOD TEST
+# ==========================================
+
+def test_wrong_method(client):
+
+    response = client.get(
+        "/predict"
+    )
+
+    assert response.status_code == 405
+
+    data = response.get_json()
+
+    assert (
+        data["error"]
+        == "HTTP method not allowed."
+    )

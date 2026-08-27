@@ -1,4 +1,6 @@
 import json
+import math
+
 from flask import (
     Flask,
     request,
@@ -30,40 +32,78 @@ from app.logger import (
 
 app = Flask(__name__)
 
+
 logger = setup_logger()
 
 
+# ==========================================
+# REQUIRED INPUT FIELDS
+# ==========================================
+
 REQUIRED_FIELDS = [
+
     "Pregnancies",
+
     "Glucose",
+
     "BloodPressure",
+
     "SkinThickness",
+
     "Insulin",
+
     "BMI",
+
     "DiabetesPedigreeFunction",
+
     "Age"
+
 ]
 
 
+# ==========================================
+# VALID INPUT RANGES
+# ==========================================
+
 FIELD_RANGES = {
+
     "Pregnancies": (0, 20),
+
     "Glucose": (1, 300),
+
     "BloodPressure": (1, 200),
+
     "SkinThickness": (0, 100),
+
     "Insulin": (0, 1000),
+
     "BMI": (1, 80),
+
     "DiabetesPedigreeFunction": (0, 3),
+
     "Age": (1, 120)
+
 }
 
 
-@app.route("/", methods=["GET"])
+# ==========================================
+# HOME
+# ==========================================
+
+@app.route(
+    "/",
+    methods=["GET"]
+)
 def home():
 
     return render_template(
         "index.html"
     )
 
+
+# ==========================================
+# HEALTH CHECK
+# ==========================================
 
 @app.route(
     "/health",
@@ -72,10 +112,19 @@ def home():
 def health():
 
     return jsonify({
-        "status": "healthy",
-        "service": "Diabetes Prediction API"
+
+        "status":
+            "healthy",
+
+        "service":
+            "Diabetes Prediction API"
+
     })
 
+
+# ==========================================
+# MODEL STATUS
+# ==========================================
 
 @app.route(
     "/model-status",
@@ -134,6 +183,7 @@ def model_status():
             "Model status check failed"
         )
 
+
         return jsonify({
 
             "status":
@@ -145,6 +195,10 @@ def model_status():
         }), 500
 
 
+# ==========================================
+# DATABASE STATUS
+# ==========================================
+
 @app.route(
     "/database-status",
     methods=["GET"]
@@ -155,23 +209,39 @@ def database_status():
 
         initialize_database()
 
+
         return jsonify({
-            "status": "connected",
-            "database": "SQLite"
+
+            "status":
+                "connected",
+
+            "database":
+                "SQLite"
+
         })
+
 
     except Exception as error:
 
-        logger.error(
-            "Database status check failed: %s",
-            error
+        logger.exception(
+            "Database status check failed"
         )
 
+
         return jsonify({
-            "status": "error",
-            "message": str(error)
+
+            "status":
+                "error",
+
+            "message":
+                str(error)
+
         }), 500
 
+
+# ==========================================
+# PREDICTION
+# ==========================================
 
 @app.route(
     "/predict",
@@ -179,28 +249,50 @@ def database_status():
 )
 def predict():
 
-    data = request.get_json()
+    data = request.get_json(
+        silent=True
+    )
+
 
     logger.info(
         "Prediction request received"
     )
 
-    if not data:
+
+    # --------------------------------------
+    # Validate JSON
+    # --------------------------------------
+
+    if not isinstance(
+        data,
+        dict
+    ):
 
         logger.warning(
-            "Prediction request contained no data"
+            "Invalid JSON prediction request"
         )
 
+
         return jsonify({
+
             "error":
-                "No input data provided."
+                "Request body must contain valid JSON."
+
         }), 400
 
 
+    # --------------------------------------
+    # Check required fields
+    # --------------------------------------
+
     missing_fields = [
+
         field
+
         for field in REQUIRED_FIELDS
+
         if field not in data
+
     ]
 
 
@@ -211,13 +303,21 @@ def predict():
             missing_fields
         )
 
+
         return jsonify({
+
             "error":
                 "Missing required fields.",
+
             "missing_fields":
                 missing_fields
+
         }), 400
 
+
+    # --------------------------------------
+    # Validate values
+    # --------------------------------------
 
     for field in REQUIRED_FIELDS:
 
@@ -225,11 +325,21 @@ def predict():
 
 
         if (
-            isinstance(value, bool)
+
+            isinstance(
+                value,
+                bool
+            )
+
             or not isinstance(
                 value,
                 (int, float)
             )
+
+            or not math.isfinite(
+                value
+            )
+
         ):
 
             logger.warning(
@@ -237,9 +347,12 @@ def predict():
                 field
             )
 
+
             return jsonify({
+
                 "error":
                     f"{field} must be a number."
+
             }), 400
 
 
@@ -249,8 +362,11 @@ def predict():
 
 
         if (
+
             value < minimum
+
             or value > maximum
+
         ):
 
             logger.warning(
@@ -258,13 +374,23 @@ def predict():
                 field
             )
 
+
             return jsonify({
+
                 "error": (
+
                     f"{field} must be between "
+
                     f"{minimum} and {maximum}."
+
                 )
+
             }), 400
 
+
+    # --------------------------------------
+    # Run prediction
+    # --------------------------------------
 
     try:
 
@@ -280,12 +406,17 @@ def predict():
 
 
         logger.info(
+
             "Prediction completed successfully: %s",
+
             result["prediction"]
+
         )
 
 
-        return jsonify(result)
+        return jsonify(
+            result
+        )
 
 
     except Exception as error:
@@ -294,13 +425,21 @@ def predict():
             "Prediction failed"
         )
 
+
         return jsonify({
+
             "error":
                 "Prediction failed.",
+
             "details":
                 str(error)
+
         }), 500
 
+
+# ==========================================
+# PREDICTION HISTORY
+# ==========================================
 
 @app.route(
     "/history",
@@ -314,7 +453,10 @@ def history():
 
 
         return jsonify({
-            "predictions": predictions
+
+            "predictions":
+                predictions
+
         })
 
 
@@ -326,12 +468,19 @@ def history():
 
 
         return jsonify({
+
             "error":
                 "Failed to retrieve prediction history.",
+
             "details":
                 str(error)
+
         }), 500
 
+
+# ==========================================
+# CLEAR HISTORY
+# ==========================================
 
 @app.route(
     "/history/clear",
@@ -350,8 +499,10 @@ def clear_history():
 
 
         return jsonify({
+
             "message":
                 "Prediction history cleared."
+
         })
 
 
@@ -363,11 +514,19 @@ def clear_history():
 
 
         return jsonify({
+
             "error":
                 "Failed to clear prediction history.",
+
             "details":
                 str(error)
+
         }), 500
+
+
+# ==========================================
+# PREDICTION EXPLANATION
+# ==========================================
 
 @app.route(
     "/explain",
@@ -375,7 +534,9 @@ def clear_history():
 )
 def explain():
 
-    data = request.get_json()
+    data = request.get_json(
+        silent=True
+    )
 
 
     logger.info(
@@ -383,18 +544,35 @@ def explain():
     )
 
 
-    if not data:
+    # --------------------------------------
+    # Validate JSON
+    # --------------------------------------
+
+    if not isinstance(
+        data,
+        dict
+    ):
 
         return jsonify({
+
             "error":
-                "No input data provided."
+                "Request body must contain valid JSON."
+
         }), 400
 
 
+    # --------------------------------------
+    # Check required fields
+    # --------------------------------------
+
     missing_fields = [
+
         field
+
         for field in REQUIRED_FIELDS
+
         if field not in data
+
     ]
 
 
@@ -411,17 +589,31 @@ def explain():
         }), 400
 
 
+    # --------------------------------------
+    # Validate values
+    # --------------------------------------
+
     for field in REQUIRED_FIELDS:
 
         value = data[field]
 
 
         if (
-            isinstance(value, bool)
+
+            isinstance(
+                value,
+                bool
+            )
+
             or not isinstance(
                 value,
                 (int, float)
             )
+
+            or not math.isfinite(
+                value
+            )
+
         ):
 
             return jsonify({
@@ -438,19 +630,29 @@ def explain():
 
 
         if (
+
             value < minimum
+
             or value > maximum
+
         ):
 
             return jsonify({
 
                 "error": (
+
                     f"{field} must be between "
+
                     f"{minimum} and {maximum}."
+
                 )
 
             }), 400
 
+
+    # --------------------------------------
+    # Generate explanation
+    # --------------------------------------
 
     try:
 
@@ -480,6 +682,12 @@ def explain():
                 str(error)
 
         }), 500
+
+
+# ==========================================
+# ANALYTICS
+# ==========================================
+
 @app.route(
     "/analytics",
     methods=["GET"]
@@ -514,6 +722,12 @@ def analytics():
                 str(error)
 
         }), 500
+
+
+# ==========================================
+# RECENT PREDICTIONS
+# ==========================================
+
 @app.route(
     "/analytics/recent",
     methods=["GET"]
@@ -526,15 +740,21 @@ def analytics_recent():
             get_recent_predictions()
         )
 
+
         return jsonify({
-            "predictions": predictions
+
+            "predictions":
+                predictions
+
         })
+
 
     except Exception as error:
 
         logger.exception(
             "Failed to retrieve recent predictions"
         )
+
 
         return jsonify({
 
@@ -545,6 +765,62 @@ def analytics_recent():
                 str(error)
 
         }), 500
+
+
+# ==========================================
+# 404 ERROR HANDLER
+# ==========================================
+
+@app.errorhandler(404)
+def not_found(error):
+
+    return jsonify({
+
+        "error":
+            "Endpoint not found."
+
+    }), 404
+
+
+# ==========================================
+# 405 ERROR HANDLER
+# ==========================================
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+
+    return jsonify({
+
+        "error":
+            "HTTP method not allowed."
+
+    }), 405
+
+
+# ==========================================
+# 500 ERROR HANDLER
+# ==========================================
+
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    logger.exception(
+        "Unhandled internal server error"
+    )
+
+
+    return jsonify({
+
+        "error":
+            "Internal server error."
+
+    }), 500
+
+
+# ==========================================
+# APPLICATION START
+# ==========================================
+
 if __name__ == "__main__":
 
     initialize_database()
