@@ -3,11 +3,11 @@ import pandas as pd
 
 
 MODEL_PATH = (
-    "models/production_model.joblib"
+    "models/diabetes_model.joblib"
 )
 
 FEATURE_PATH = (
-    "models/production_feature_names.joblib"
+    "models/feature_names.joblib"
 )
 
 
