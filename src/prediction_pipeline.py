@@ -1,7 +1,6 @@
 import joblib
 import pandas as pd
 
-
 MODEL_PATH = (
     "models/diabetes_model.joblib"
 )
